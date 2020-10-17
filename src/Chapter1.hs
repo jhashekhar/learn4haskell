@@ -480,7 +480,7 @@ Implement a function that returns the last digit of a given number.
 -}
 -- DON'T FORGET TO SPECIFY THE TYPE IN HERE
 lastDigit :: Int -> Int
-lastDigit n = mod n 10
+lastDigit n = mod (abs n) 10
 
 
 {- |
@@ -662,11 +662,11 @@ aren't ready for this boss yet!
 
 firstDigit :: Int -> Int
 firstDigit x
-    | x < 10 = x
+    | abs(x) < 10 = abs x
     | otherwise = rfirstDigit x
     where
     rfirstDigit :: Int -> Int
-    rfirstDigit y = firstDigit (y `quot` 10)  
+    rfirstDigit y = firstDigit (abs(y) `quot` 10)  
 
 
 {-
