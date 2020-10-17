@@ -545,9 +545,13 @@ Casual reminder about adding top-level type signatures for all functions :)
 -}
 mid :: Int -> Int -> Int -> Int
 mid x y z
-    | (x < y && x > z) || (x > y && x < z) = x   -- assuming x, y, z are unequal integers
+    | (x < y && x > z) || (x > y && x < z) = x
     | (y < x && y > z) || (y > x && y < z) = y
     | (z < x && z > y) || (z > x && z < y) = z
+    | (x == y) && (y == z) && (x == z) = x
+    | (x == y) = x
+    | (y == z) = y
+    | (x == z) = z
     | otherwise = 0
 
 {- |
