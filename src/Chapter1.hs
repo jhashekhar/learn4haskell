@@ -633,13 +633,13 @@ Try to introduce variables in this task (either with let-in or where) to avoid
 specifying complex expressions.
 -}
 sumLast2 :: Int -> Int
-sumLast2 n = fDigit (mod n 100) + secDigit n
+sumLast2 n = fDigit (mod (abs n) 100) + secDigit (abs n)
   where
     fDigit :: Int -> Int
-    fDigit x = x `quot` 10
+    fDigit x = (abs x) `quot` 10
         
     secDigit :: Int -> Int
-    secDigit x = mod x 10
+    secDigit x = mod (abs x) 10
 
 
 {- |
