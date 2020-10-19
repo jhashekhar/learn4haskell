@@ -632,13 +632,13 @@ Try to introduce variables in this task (either with let-in or where) to avoid
 specifying complex expressions.
 -}
 sumLast2 :: Int -> Int
-sumLast2 n = fDigit (mod (abs n) 100) + secDigit (abs n)
+sumLast2 n = fDigit n + secDigit n
   where
     fDigit :: Int -> Int
-    fDigit x = (abs x) `quot` 10
+    fDigit n = rem (abs n) 100 `quot` 10
         
     secDigit :: Int -> Int
-    secDigit x = mod (abs x) 10
+    secDigit n = rem (abs n) 10
 
 
 {- |
@@ -661,12 +661,13 @@ aren't ready for this boss yet!
 
 firstDigit :: Int -> Int
 firstDigit x
-    | abs(x) < 10 = abs x
+    | a < 10 = a
     | otherwise = rfirstDigit x
     where
     rfirstDigit :: Int -> Int
-    rfirstDigit y = firstDigit (abs(y) `quot` 10)  
-
+    rfirstDigit y = firstDigit (abs y `quot` 10)  
+    
+    a = abs x
 
 {-
 You did it! Now it is time to open pull request with your changes
