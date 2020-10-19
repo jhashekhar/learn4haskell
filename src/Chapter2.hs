@@ -349,10 +349,10 @@ from it!
 ghci> :l src/Chapter2.hs
 -}
 subList :: Int -> Int -> [a] -> [a]
-subList i j x
-    | (i > length x) || (j > length x) = []
-    | (i < 1) || (j < 1) = []
-    | i < (j + 1) = (x !! i) : subList (i+1) j x
+subList i j l
+    | i > length l || i < 0 || j < 0 = []
+    | i <= j && j - 1 > length l = (l !! i) : subList (i + 1) (length l - 1) l
+    | i <= j = (l !! i) : subList (i + 1) j l
     | otherwise = []
 
 {- |
@@ -528,10 +528,11 @@ i :: Int
 i = error "not implemented"
 isThird42 :: [Int] -> Bool
 isThird42 [] = False
-isThird42 x = case (x !! 2) of 
-  42 -> True
-  _ -> False
-
+isThird42 x = if length x < 3 then False else check42 x
+    where
+      check42 x = case (x !! 2) of
+        42 -> True
+        _ -> False
 
 
 {- |
@@ -654,9 +655,17 @@ Write a function that takes elements of a list only on even positions.
 -}
 takeEven :: [Int] -> [Int]
 takeEven [] = []
-takeEven (x:xs) = case (mod x 2) of
-  0 -> x : takeEven xs
-  _ -> takeEven xs
+takeEven [x] = [x]
+takeEven l = checkEven i l
+    where
+      i = 0
+      checkEven :: Int -> [Int] -> [Int]
+      checkEven i l
+        | l == [] = []
+        | (mod i 2 == 0) && i < length l = (l !! i) : checkEven (i+1) l
+        | (mod i 2 /= 0) && i < length l = checkEven (i+1) l
+        | otherwise = []
+
 
 {- |
 =🛡= Higher-order functions
