@@ -344,6 +344,18 @@ of a book, but you are not limited only by the book properties we described.
 Create your own book type of your dreams!
 -}
 
+data Book = Book 
+    { name            :: String
+    , author          :: String
+    , genre           :: [String]
+    , yearPublished   :: Int
+    , publisher       :: String
+    , cover           :: String
+    , pages           :: Int
+    , nytBestseller   :: Bool
+    , amazonReview    :: Double
+    }
+
 {- |
 =⚔️= Task 2
 
@@ -373,6 +385,55 @@ after the fight. The battle has the following possible outcomes:
    doesn't earn any money and keeps what they had before.
 
 -}
+
+
+data Knight = Knight
+    { knightHealth :: Int
+    , knightAttack :: Int
+    , knightGold   :: Int
+    } deriving (Show)
+
+
+data Monster = Monster
+    { monsterHealth :: Int
+    , monsterAttack :: Int
+    , monsterGold   :: Int
+    } deriving (Show)
+
+
+balrog :: Monster
+balrog = Monster
+    { monsterHealth = 10
+    , monsterAttack = 3
+    , monsterGold   = 100
+    }
+
+thranduil :: Knight
+thranduil = Knight
+    { knightHealth = 10
+    , knightAttack = 3
+    , knightGold   = 0
+    }
+
+knightWins :: Monster -> Knight -> Int
+knightWins m k 
+    | knightGold k == monsterGold m = knightGold k
+    | otherwise = knightGold k
+
+monsterWins :: Monster -> Knight -> Int
+monsterWins _ _ = -1
+
+knightHits :: Monster -> Knight -> Int
+knightHits m k = monsterHealth m - knightAttack k
+
+monsterHits :: Monster -> Knight -> Int
+monsterHits m k = knightHealth k - monsterAttack m
+
+--fight :: Monster -> Knight -> Int
+--fight = if (monsterHealth m <= 0) then (knightWins) else fight
+--fight m k = if (knightHealth k <= 0) then (monsterWins m k) else fight m k
+
+
 
 {- |
 =🛡= Sum types
