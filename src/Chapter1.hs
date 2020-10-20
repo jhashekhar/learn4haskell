@@ -631,14 +631,21 @@ Implement a function that returns the sum of the last two digits of a number.
 Try to introduce variables in this task (either with let-in or where) to avoid
 specifying complex expressions.
 -}
+
+{- 
+https://github.com/jhashekhar/learn4haskell/pull/1#discussion_r507121679
+
+Refer to above link for @vrom911 suggestions that led to changes in the `sumLast2` function
+-}
+
 sumLast2 :: Int -> Int
-sumLast2 n = fDigit n + secDigit n
+sumLast2 n = fDigit + secDigit
   where
-    fDigit :: Int -> Int
-    fDigit n = rem (abs n) 100 `quot` 10
+    fDigit :: Int
+    fDigit = rem (abs n) 100 `quot` 10
         
-    secDigit :: Int -> Int
-    secDigit n = rem (abs n) 10
+    secDigit :: Int
+    secDigit = rem (abs n) 10
 
 
 {- |
