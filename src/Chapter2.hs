@@ -348,11 +348,19 @@ from it!
 
 ghci> :l src/Chapter2.hs
 -}
+
+{-
 subList :: Int -> Int -> [a] -> [a]
 subList i j l
     | i > length l || i < 0 || j < 0 = []
     | i <= j && j - 1 > length l = (l !! i) : subList (i + 1) (length l - 1) l
     | i <= j = (l !! i) : subList (i + 1) j l
+    | otherwise = []
+-}
+
+subList :: Int -> Int -> [a] -> [a]
+subList x y l
+    | x >= 0 && y >= 0 = take (y - x + 1) $ drop x l
     | otherwise = []
 
 {- |
@@ -366,13 +374,18 @@ Implement a function that returns only the first half of a given list.
 "b"
 -}
 -- PUT THE FUNCTION TYPE IN HERE
-firstHalf :: [a] -> [a]
+
+{- firstHalf :: [a] -> [a]
 firstHalf l = sList 0 (length l) l
     where
       sList :: Int -> Int -> [a] -> [a]
       sList i j l
           | i < (j `quot` 2) = (l !! i) : sList (i+1) j l
           | otherwise = []
+-}
+
+firstHalf :: [a] -> [a]
+firstHalf l = take (length l `quot` 2) l
 
 
 {- |
@@ -526,6 +539,8 @@ False
 
 i :: Int
 i = error "not implemented"
+
+{-
 isThird42 :: [Int] -> Bool
 isThird42 [] = False
 isThird42 x = if length x < 3 then False else check42 x
@@ -533,7 +548,11 @@ isThird42 x = if length x < 3 then False else check42 x
       check42 x = case (x !! 2) of
         42 -> True
         _ -> False
+-}
 
+isThird42 :: [Int] -> Bool
+isThird42 (_:_:42:_) = True
+isThird42 _ = False
 
 {- |
 =🛡= Recursion
@@ -653,6 +672,7 @@ Write a function that takes elements of a list only on even positions.
 >>> takeEven [2, 1, 3, 5, 4]
 [2,3,4]
 -}
+{-
 takeEven :: [Int] -> [Int]
 takeEven [] = []
 takeEven [x] = [x]
@@ -665,6 +685,11 @@ takeEven l = checkEven i l
         | (mod i 2 == 0) && i < length l = (l !! i) : checkEven (i+1) l
         | (mod i 2 /= 0) && i < length l = checkEven (i+1) l
         | otherwise = []
+-}
+takeEven :: [Int] -> [Int]
+takeEven [] = []
+takeEven [x] = [x]
+takeEven (x:_:ys) = x:takeEven ys 
 
 
 {- |
@@ -771,13 +796,16 @@ value of the element itself
 
 🕯 HINT: Use combination of 'map' and 'replicate'
 -}
+
 smartReplicate :: [Int] -> [Int]
 smartReplicate [] = []
 smartReplicate (x:xs) = concat $ repList (x:xs)
     where
-      repList :: [Int] -> [[Int]]
-      repList [] = []
+      --repList :: [Int] -> [[Int]]
+      --repList [] = []
       repList (y:ys) = map (replicate y) [y] ++ repList ys
+
+
 
 {- |
 =⚔️= Task 9
@@ -791,7 +819,6 @@ the list with only those lists that contain a passed element.
 🕯 HINT: Use the 'elem' function to check whether an element belongs to a list
 -}
 contains :: Int -> [[Int]] -> [[Int]]
-contains _ [] = []
 contains e l = [x | x <- l, elem e x]
 
 
