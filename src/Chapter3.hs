@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 {- 👋 Welcome to Chapter Three of our journey, Courageous Knight!
 
 Glad to see you back for more challenges. You fight great for the glory of the
@@ -345,15 +347,17 @@ Create your own book type of your dreams!
 -}
 
 data Book = Book 
-    { name            :: String
+    { title           :: String
     , author          :: String
     , genre           :: [String]
     , yearPublished   :: Int
     , publisher       :: String
     , cover           :: String
-    , pages           :: Int
-    , nytBestseller   :: Bool
-    , amazonReview    :: Double
+    , pages           :: Int      
+    , nytBestseller   :: Bool     -- check if the book made it to bestseller list
+    , amazonReview    :: Double   -- amazon ratings
+    , kindle          :: Bool     -- kindle version
+    , audible         :: Bool     -- audible version
     }
 
 {- |
@@ -386,53 +390,30 @@ after the fight. The battle has the following possible outcomes:
 
 -}
 
-
 data Knight = Knight
     { knightHealth :: Int
     , knightAttack :: Int
     , knightGold   :: Int
-    } deriving (Show)
+    } deriving Show
 
 
 data Monster = Monster
     { monsterHealth :: Int
     , monsterAttack :: Int
     , monsterGold   :: Int
-    } deriving (Show)
+    } deriving Show
 
-
-balrog :: Monster
-balrog = Monster
-    { monsterHealth = 10
-    , monsterAttack = 3
-    , monsterGold   = 100
-    }
-
-thranduil :: Knight
-thranduil = Knight
-    { knightHealth = 10
-    , knightAttack = 3
-    , knightGold   = 0
-    }
-
-knightWins :: Monster -> Knight -> Int
-knightWins m k 
-    | knightGold k == monsterGold m = knightGold k
+outcomes :: Knight -> Monster -> Int
+outcomes k m
+    | knightHealth k > monsterHealth m && monsterHealth m <= 0 = knightGold k + monsterGold m
+    | monsterHealth m > knightHealth k && knightHealth k <= 0 = -1
     | otherwise = knightGold k
 
-monsterWins :: Monster -> Knight -> Int
-monsterWins _ _ = -1
-
-knightHits :: Monster -> Knight -> Int
-knightHits m k = monsterHealth m - knightAttack k
-
-monsterHits :: Monster -> Knight -> Int
-monsterHits m k = knightHealth k - monsterAttack m
-
---fight :: Monster -> Knight -> Int
---fight = if (monsterHealth m <= 0) then (knightWins) else fight
---fight m k = if (knightHealth k <= 0) then (monsterWins m k) else fight m k
-
+fight :: Knight -> Monster -> Int
+fight k m =
+  if (knightHealth k >= 0 && monsterHealth m >= 0)
+    then fight k {knightHealth = knightHealth k - monsterAttack m} m {monsterHealth = monsterHealth m - knightAttack k}
+    else outcomes k m 
 
 
 {- |
@@ -521,6 +502,13 @@ Create a simple enumeration for the meal types (e.g. breakfast). The one who
 comes up with the most number of names wins the challenge. Use your creativity!
 -}
 
+data Meals 
+    = BreakFast
+    | Lunch [String]
+    | Dinner
+    | Supper
+    | ChaiTime
+
 {- |
 =⚔️= Task 4
 
@@ -540,6 +528,29 @@ After defining the city, implement the following functions:
    complicated task, walls can be built only if the city has a castle
    and at least 10 living __people__ inside in all houses of the city totally.
 -}
+
+data Castle = Castle String
+data ChurchOrLibrary = Church | Library
+data HouseMembers = One | Two | Three | Four
+
+data City = City
+    { cityCastle :: Castle
+    , cityWall :: Bool
+    , churchOrLib :: ChurchOrLibrary
+    , homes :: [HouseMembers]
+    }
+
+buildCastle :: String -> City -> City
+buildCastle castle city = city {cityCastle = Castle castle}
+
+buildHouse :: HouseMembers -> City -> City
+buildHouse hm city = city {homes = hm : homes city}
+
+buildWalls :: City -> City
+buildWalls city = case cityCastle city of
+    Castle _ -> city {cityWall = True}
+    _ -> city {cityWall = False}
+
 
 {-
 =🛡= Newtypes
@@ -621,22 +632,31 @@ introducing extra newtypes.
 🕯 HINT: if you complete this task properly, you don't need to change the
     implementation of the "hitPlayer" function at all!
 -}
+
 data Player = Player
-    { playerHealth    :: Int
-    , playerArmor     :: Int
-    , playerAttack    :: Int
-    , playerDexterity :: Int
-    , playerStrength  :: Int
+    { playerHealth    :: Health
+    , playerArmor     :: Armor
+    , playerAttack    :: Attack
+    , playerDexterity :: Dexterity
+    , playerStrength  :: Strength
     }
 
-calculatePlayerDamage :: Int -> Int -> Int
-calculatePlayerDamage attack strength = attack + strength
+newtype Health = Health Int
+newtype Armor = Armor Int
+newtype Attack = Attack Int
+newtype Dexterity = Dexterity Int
+newtype Strength = Strength Int
+newtype Damage = Damage Int
+newtype Defense = Defense Int
 
-calculatePlayerDefense :: Int -> Int -> Int
-calculatePlayerDefense armor dexterity = armor * dexterity
+calculatePlayerDamage :: Attack -> Strength -> Damage
+calculatePlayerDamage (Attack attack) (Strength strength) = Damage (attack + strength)
 
-calculatePlayerHit :: Int -> Int -> Int -> Int
-calculatePlayerHit damage defense health = health + defense - damage
+calculatePlayerDefense :: Armor -> Dexterity -> Defense
+calculatePlayerDefense (Armor armor) (Dexterity dexterity) = Defense (armor * dexterity)
+
+calculatePlayerHit :: Damage -> Defense -> Health -> Health
+calculatePlayerHit (Damage damage) (Defense defense) (Health health) = Health (health + defense - damage)
 
 -- The second player hits first player and the new first player is returned
 hitPlayer :: Player -> Player -> Player
@@ -814,6 +834,9 @@ parametrise data types in places where values can be of any general type.
   maybe-treasure ;)
 -}
 
+data Lair treasureChest = Dragon | Maybe treasureChest
+data DragonPower = Power
+
 {-
 =🛡= Typeclasses
 
@@ -971,6 +994,19 @@ Implement instances of "Append" for the following types:
 class Append a where
     append :: a -> a -> a
 
+newtype Gold = Gold Int
+
+instance Append Gold where
+    append :: Gold -> Gold -> Gold
+    append (Gold x) (Gold y) = Gold (x + y)
+
+instance Append [a] where
+    append :: [a] -> [a] -> [a]
+    append x y = x ++ y
+
+instance Append (Maybe [a]) where
+    append :: Maybe [a] -> Maybe [a] -> Maybe [a]
+    append (Just x) (Just y) =  Just (x ++ y)
 
 {-
 =🛡= Standard Typeclasses and Deriving
@@ -1032,6 +1068,31 @@ implement the following functions:
 🕯 HINT: to implement this task, derive some standard typeclasses
 -}
 
+data WeekDay = Sunday 
+    | Monday 
+    | Tuesday 
+    | Wednesday
+    | Thursday 
+    | Friday 
+    | Saturday
+    deriving (Show, Enum)
+
+isWeekend :: WeekDay -> Bool
+isWeekend day = case day of
+    Saturday -> True
+    Sunday -> True
+    _ -> False
+
+nextDay :: WeekDay -> WeekDay
+nextDay day = case day of
+    Saturday -> Sunday      -- is there a way by which I can avoid the "Saturday" problem ??
+    _ -> succ day
+
+daysToParty :: WeekDay -> Int
+daysToParty day = case day of 
+    Saturday -> (length $ enumFromTo day Friday) + 1
+    _ -> length $ enumFromTo day Friday
+
 {-
 =💣= Task 9*
 
@@ -1067,6 +1128,38 @@ Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
 
+data BraveKnight = BraveKnight
+  { kAttack :: Int
+  , kHealth :: Int
+  , kDefence :: Int
+  } deriving (Show)
+
+data FuriousMonster = FuriousMonster
+  { mHealth :: Int
+  , mAttack :: Int
+  } deriving (Show)
+
+data KnightActions = KnightAttack | DrinkPotion | CastSpell
+
+data MonsterActions = MonsterAttack | Runaway
+
+class Fighter a b where
+  residualHealthKnight :: a -> b -> a
+  residualHealthMonster :: a -> b -> b
+
+instance Fighter BraveKnight FuriousMonster where
+  residualHealthKnight k m = k {kHealth = kHealth k - mHealth m + kDefence k}
+  residualHealthMonster k m = m {mHealth = mHealth m - kAttack k}
+
+
+fightForGlory :: (Fighter a b) => a -> b -> String
+fightForGlory k m = fightForGlory (residualHealthKnight k m) (residualHealthMonster k m)
+
+fightOutcome :: BraveKnight -> FuriousMonster -> String
+fightOutcome k m
+    | kHealth k <= 0 && mHealth m > 0 = "Knight Lost!!"
+    | kHealth k >= 0 && mHealth m < 0 = "Knight Wins!!"
+    | otherwise = "Draw"
 
 {-
 You did it! Now it is time to open pull request with your changes
