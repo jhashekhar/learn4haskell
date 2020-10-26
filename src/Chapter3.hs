@@ -1,5 +1,3 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
 {- 👋 Welcome to Chapter Three of our journey, Courageous Knight!
 
 Glad to see you back for more challenges. You fight great for the glory of the
@@ -351,13 +349,11 @@ data Book = Book
     , author          :: String
     , genre           :: [String]
     , yearPublished   :: Int
-    , publisher       :: String
     , cover           :: String
     , pages           :: Int      
     , nytBestseller   :: Bool     -- check if the book made it to bestseller list
     , amazonReview    :: Double   -- amazon ratings
     , kindle          :: Bool     -- kindle version
-    , audible         :: Bool     -- audible version
     }
 
 {- |
@@ -504,10 +500,10 @@ comes up with the most number of names wins the challenge. Use your creativity!
 
 data Meals 
     = BreakFast
-    | Lunch [String]
+    | Coffee
+    | Lunch String
     | Dinner
-    | Supper
-    | ChaiTime
+    | Chai
 
 {- |
 =⚔️= Task 4
@@ -834,7 +830,12 @@ parametrise data types in places where values can be of any general type.
   maybe-treasure ;)
 -}
 
-data Lair treasureChest = Dragon | Maybe treasureChest
+data TreasureChest x = TreasureChest
+  { treasureChestGold :: Int
+  , treasureChestLoot :: x
+  }
+
+data Lair TreasureChest = Dragon | Maybe TreasureChest
 data DragonPower = Power
 
 {-
@@ -991,6 +992,8 @@ Implement instances of "Append" for the following types:
   ✧ *(Challenge): "Maybe" where append is appending of values inside "Just" constructors
 
 -}
+{-# LANGUAGE FlexibleInstances #-}
+
 class Append a where
     append :: a -> a -> a
 
@@ -1127,6 +1130,7 @@ properties using typeclasses, but they are different data types in the end.
 Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 data BraveKnight = BraveKnight
   { kAttack :: Int
