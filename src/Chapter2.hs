@@ -940,8 +940,8 @@ and reverses it.
   function, but in this task, you need to implement it manually. No
   cheating!
 -}
-rewindGo :: [a] -> [a]
-rewindGo = go []
+rewind :: [a] -> [a]
+rewind = go []
     where
         go :: [a] -> [a] -> [a]
         go acc [] = acc
