@@ -940,11 +940,12 @@ and reverses it.
   function, but in this task, you need to implement it manually. No
   cheating!
 -}
-rewind :: [a] -> [a]
-rewind [] = []
-rewind (x:xs) = rewind xs ++ [x]
-
-
+rewindGo :: [a] -> [a]
+rewindGo = go []
+    where
+        go :: [a] -> [a] -> [a]
+        go acc [] = acc
+        go acc (x:xs) = go (x:acc) xs
 {-
 You did it! Now it is time to open pull request with your changes
 and summon @vrom911 and @chshersh for the review!
