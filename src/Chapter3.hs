@@ -50,6 +50,8 @@ signatures in places where you can't by default. We believe it's helpful to
 provide more top-level type signatures, especially when learning Haskell.
 -}
 {-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Chapter3 where
 
@@ -345,8 +347,8 @@ Create your own book type of your dreams!
 -}
 
 data Book = Book 
-    { title           :: String
-    , author          :: String
+    { bookTitle       :: String
+    , bookAuthor      :: String
     , genre           :: [String]
     , yearPublished   :: Int
     , cover           :: String
@@ -502,7 +504,7 @@ data Meals
     = BreakFast
     | Coffee
     | Lunch String
-    | Dinner
+    | Dinner String
     | Chai
 
 {- |
@@ -545,7 +547,6 @@ buildHouse hm city = city {homes = hm : homes city}
 buildWalls :: City -> City
 buildWalls city = case cityCastle city of
     Castle _ -> city {cityWall = True}
-    _ -> city {cityWall = False}
 
 
 {-
@@ -833,10 +834,15 @@ parametrise data types in places where values can be of any general type.
 data TreasureChest x = TreasureChest
   { treasureChestGold :: Int
   , treasureChestLoot :: x
-  }
+  } deriving (Show)
 
-data Lair TreasureChest = Dragon | Maybe TreasureChest
-data DragonPower = Power
+data DragonPower x = DragonPower
+  { magicalPower :: x
+  , dragonFire :: Bool
+  } deriving (Show)
+
+data Lair a = Dragon | Maybe (TreasureChest a)
+
 
 {-
 =🛡= Typeclasses
@@ -992,7 +998,6 @@ Implement instances of "Append" for the following types:
   ✧ *(Challenge): "Maybe" where append is appending of values inside "Just" constructors
 
 -}
-{-# LANGUAGE FlexibleInstances #-}
 
 class Append a where
     append :: a -> a -> a
@@ -1088,7 +1093,7 @@ isWeekend day = case day of
 
 nextDay :: WeekDay -> WeekDay
 nextDay day = case day of
-    Saturday -> Sunday      -- is there a way by which I can avoid the "Saturday" problem ??
+    Saturday -> Sunday      -- Is there a way in which I can avoid a special case for "Saturday" ??
     _ -> succ day
 
 daysToParty :: WeekDay -> Int
@@ -1130,7 +1135,6 @@ properties using typeclasses, but they are different data types in the end.
 Implement data types and typeclasses, describing such a battle between two
 contestants, and write a function that decides the outcome of a fight!
 -}
-{-# LANGUAGE MultiParamTypeClasses #-}
 
 data BraveKnight = BraveKnight
   { kAttack :: Int
@@ -1143,8 +1147,8 @@ data FuriousMonster = FuriousMonster
   , mAttack :: Int
   } deriving (Show)
 
+-- unused datatypes
 data KnightActions = KnightAttack | DrinkPotion | CastSpell
-
 data MonsterActions = MonsterAttack | Runaway
 
 class Fighter a b where
@@ -1152,17 +1156,18 @@ class Fighter a b where
   residualHealthMonster :: a -> b -> b
 
 instance Fighter BraveKnight FuriousMonster where
-  residualHealthKnight k m = k {kHealth = kHealth k - mHealth m + kDefence k}
-  residualHealthMonster k m = m {mHealth = mHealth m - kAttack k}
+  residualHealthKnight k m = k {kHealth = kHealth k - mHealth m + kDefence k} -- monster attacks the knight
+  residualHealthMonster k m = m {mHealth = mHealth m - kAttack k}             -- knight attacks the monster
 
-
-fightForGlory :: (Fighter a b) => a -> b -> String
-fightForGlory k m = fightForGlory (residualHealthKnight k m) (residualHealthMonster k m)
+fightForGlory :: BraveKnight -> FuriousMonster -> String
+fightForGlory k m 
+    | kHealth k > 0 && mHealth m > 0 = fightForGlory (residualHealthKnight k m) (residualHealthMonster k m) -- signifies a single back and forth of knight and monster 
+    | otherwise = fightOutcome k m     -- if health is zero or below for any fighter then show who won
 
 fightOutcome :: BraveKnight -> FuriousMonster -> String
 fightOutcome k m
-    | kHealth k <= 0 && mHealth m > 0 = "Knight Lost!!"
-    | kHealth k >= 0 && mHealth m < 0 = "Knight Wins!!"
+    | kHealth k < mHealth m = "Knight Lost!!"
+    | kHealth k > mHealth m = "Knight Wins!!"
     | otherwise = "Draw"
 
 {-
