@@ -280,6 +280,7 @@ inside, so it is quite handy.
 data Secret e a
     = Trap e
     | Reward a
+    deriving (Show, Eq)
 
 
 {- |
@@ -293,6 +294,8 @@ values and apply them to the type level?
 instance Functor (Secret e) where
     fmap :: (a -> b) -> Secret e a -> Secret e b
     fmap g (Reward x) = Reward (g x)
+    fmap _ (Trap x) = Trap x 
+
 
 {- |
 =⚔️= Task 3
@@ -481,6 +484,8 @@ instance Applicative (Secret e) where
 
     (<*>) :: Secret e (a -> b) -> Secret e a -> Secret e b
     (<*>) (Reward g) (Reward x) = Reward (g x) 
+    (<*>) (Trap x) _ = Trap x
+    (<*>) _ (Trap x) = Trap x
 
 {- |
 =⚔️= Task 5
@@ -620,6 +625,7 @@ Implement the 'Monad' instance for our 'Secret' type.
 instance Monad (Secret e) where
     (>>=) :: Secret e a -> (a -> Secret e b) -> Secret e b
     (>>=) (Reward x) g = g x
+    (>>=) (Trap x) _ = Trap x
 
 {- |
 =⚔️= Task 7
@@ -652,7 +658,8 @@ Can you implement a monad version of AND, polymorphic over any monad?
 🕯 HINT: Use "(>>=)", "pure" and anonymous function
 -}
 andM :: (Monad m) => m Bool -> m Bool -> m Bool
-andM mx my = mx >>= (\y -> (y&&) <$> my) 
+andM mx my = mx >>= (\y -> (y &&) <$> my)
+
 
 {- |
 =🐉= Task 9*: Final Dungeon Boss
