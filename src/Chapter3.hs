@@ -1010,11 +1010,16 @@ instance Append Gold where
 
 instance Append [a] where
     append :: [a] -> [a] -> [a]
-    append x y = x ++ y
+    append = (++)
 
-instance Append (Maybe [a]) where
-    append :: Maybe [a] -> Maybe [a] -> Maybe [a]
-    append (Just x) (Just y) =  Just (x ++ y)
+instance (Append a) => Append (Maybe a) where
+    append :: Maybe a -> Maybe a -> Maybe a
+    append (Nothing) y = y
+    append x (Nothing) = x
+    append (Just x) (Just y) =  Just (append x y)
+    
+
+
 
 {-
 =🛡= Standard Typeclasses and Deriving
@@ -1152,16 +1157,23 @@ data KnightActions = KnightAttack | DrinkPotion | CastSpell
 data MonsterActions = MonsterAttack | Runaway
 
 class Fighter a b where
-  residualHealthKnight :: a -> b -> a
-  residualHealthMonster :: a -> b -> b
+  residualHealthA :: a -> b -> a
+  residualHealthB :: a -> b -> b
 
-instance Fighter BraveKnight FuriousMonster where
-  residualHealthKnight k m = k {kHealth = kHealth k - mHealth m + kDefence k} -- monster attacks the knight
-  residualHealthMonster k m = m {mHealth = mHealth m - kAttack k}             -- knight attacks the monster
+
+instance Fighter a b where
+  residualHealthA a b = k {kHealth = kHealth k - mHealth m + kDefence k} -- monster attacks the knight
+  residualHealthB k m = m {mHealth = mHealth m - kAttack k}             -- knight attacks the monster
+
+
+duel :: (Fighter a b) => a -> b -> Result
+duel x y
+    | (kHealth x > 0 && kHealth y > 0) = duel x {kHealth = kHealth x - kAttack y + kDefence x} y {kHealth = kHealth y - kAttack x + kDefence y}
+    | 
 
 fightForGlory :: BraveKnight -> FuriousMonster -> String
 fightForGlory k m 
-    | kHealth k > 0 && mHealth m > 0 = fightForGlory (residualHealthKnight k m) (residualHealthMonster k m) -- signifies a single back and forth of knight and monster 
+    | kHealth k > 0 && mHealth m > 0 = fightForGlory (residualHealthA k m) (residualHealthB k m) -- signifies a single back and forth of knight and monster 
     | otherwise = fightOutcome k m     -- if health is zero or below for any fighter then show who won
 
 fightOutcome :: BraveKnight -> FuriousMonster -> String
