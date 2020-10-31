@@ -799,11 +799,7 @@ value of the element itself
 
 smartReplicate :: [Int] -> [Int]
 smartReplicate [] = []
-smartReplicate (x:xs) = concat $ repList (x:xs)
-    where
-      --repList :: [Int] -> [[Int]]
-      --repList [] = []
-      repList (y:ys) = map (replicate y) [y] ++ repList ys
+smartReplicate xs = concat $ map (\x -> replicate x x) xs
 
 
 
